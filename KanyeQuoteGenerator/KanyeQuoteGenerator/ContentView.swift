@@ -1,61 +1,34 @@
-//
-//  ContentView.swift
-//  KanyeQuoteGenerator
-//
-//  Created by Just Huisman on 05/03/2026.
-//
-
 import SwiftUI
-import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
+    @State private var viewModel = QuoteViewModel()
+    @State private var showSplash = true
+    
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+        if showSplash {
+            SplashView()
+                .onAppear {
+                    // Splash screen verdwijnt na 2.5 seconden
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                        withAnimation {
+                            showSplash = false
+                        }
                     }
                 }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+        } else {
+            TabView {
+                GeneratorView(viewModel: viewModel)
+                    .tabItem {
+                        Label("Generate", systemImage: "arrow.triangle.2.circlepath")
                     }
-                }
+                
+                FavoritesView()
+                    .tabItem {
+                        Label("Favorites", systemImage: "heart")
+                    }
             }
-        } detail: {
-            Text("Select an item")
+            .tint(.white) // TabBar icoon kleur
+            .preferredColorScheme(.dark)
         }
     }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
-        }
-    }
-}
-
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }

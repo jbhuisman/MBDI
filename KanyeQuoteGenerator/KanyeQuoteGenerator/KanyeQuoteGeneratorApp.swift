@@ -1,19 +1,11 @@
-//
-//  KanyeQuoteGeneratorApp.swift
-//  KanyeQuoteGenerator
-//
-//  Created by Just Huisman on 05/03/2026.
-//
-
 import SwiftUI
 import SwiftData
 
 @main
 struct KanyeQuoteGeneratorApp: App {
     var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
+        // We gebruiken hier ons eigen model: QuoteItem
+        let schema = Schema([QuoteItem.self])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
         do {
