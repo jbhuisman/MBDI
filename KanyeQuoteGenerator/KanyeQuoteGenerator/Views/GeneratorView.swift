@@ -6,56 +6,39 @@ struct GeneratorView: View {
     @Bindable var viewModel: QuoteViewModel
     @State private var isSaved: Bool = false
     
-    // Kleuren voor de knoppen
-    let orangePink = LinearGradient(colors: [.orange, .pink], startPoint: .leading, endPoint: .trailing)
-    
     var body: some View {
         ZStack {
-            // Donkere Gradient Achtergrond
             LinearGradient(colors: [Color(red: 0.1, green: 0.1, blue: 0.2), .black], startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
             
             VStack(spacing: 25) {
-                // Header met Score
                 HStack {
                     Text("Guess Who?")
                         .font(.title2.bold())
                         .foregroundColor(.white)
                     Spacer()
-                    HStack(spacing: 5) {
-                        Text("Score:")
-                            .foregroundColor(.gray)
-                        Text("\(viewModel.score)")
-                            .foregroundColor(.blue)
-                    }
-                    .padding(.horizontal, 15)
-                    .padding(.vertical, 8)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Capsule())
+                    Text("Score: \(viewModel.score)")
+                        .padding(.horizontal, 15).padding(.vertical, 8)
+                        .background(.ultraThinMaterial).clipShape(Capsule())
+                        .foregroundColor(.blue).fontWeight(.bold)
                 }
                 .padding(.horizontal)
                 
-                // Quote Box (Glassmorphism)
                 ZStack {
                     RoundedRectangle(cornerRadius: 24)
                         .fill(.white.opacity(0.05))
                         .background(.ultraThinMaterial)
-                        .overlay(RoundedRectangle(cornerRadius: 24).stroke(.white.opacity(0.1), lineWidth: 1))
                     
                     VStack {
                         if viewModel.isLoading {
                             ProgressView().tint(.white)
                         } else {
                             Text("\"\(viewModel.currentQuoteText)\"")
-                                .font(.title3)
-                                .italic()
-                                .multilineTextAlignment(.center)
-                                .foregroundColor(.white)
-                                .padding(30)
+                                .font(.title3).italic().multilineTextAlignment(.center)
+                                .foregroundColor(.white).padding(30)
                         }
                     }
                     
-                    // Hartje (Like)
                     VStack {
                         Spacer()
                         HStack {
@@ -69,45 +52,23 @@ struct GeneratorView: View {
                         }
                     }
                 }
-                .frame(height: 250)
-                .padding(.horizontal)
+                .frame(height: 250).padding(.horizontal)
                 
-                // Guess Buttons
+                // Gok knoppen - nu met LOCK logica
                 HStack(spacing: 15) {
-                    Button(action: { viewModel.guess(isKanye: true) }) {
-                        Text("KANYE")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.green.opacity(0.2))
-                            .foregroundColor(.green)
-                            .cornerRadius(12)
-                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.green.opacity(0.5), lineWidth: 1))
-                    }
-                    
-                    Button(action: { viewModel.guess(isKanye: false) }) {
-                        Text("OTHER")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.red.opacity(0.2))
-                            .foregroundColor(.red)
-                            .cornerRadius(12)
-                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.red.opacity(0.5), lineWidth: 1))
-                    }
+                    guessButton(title: "KANYE", color: .green, isKanye: true)
+                    guessButton(title: "OTHER", color: .red, isKanye: false)
                 }
                 .padding(.horizontal)
+                .disabled(viewModel.guessResult != nil) // LOCK: Je kunt maar 1x raden
                 
-                // Feedback tekst
                 if let result = viewModel.guessResult {
-                    Text(result ? "Correct! +10" : "Incorrect! -5")
-                        .fontWeight(.bold)
-                        .foregroundColor(result ? .green : .red)
+                    Text(result ? "Correct! +10" : "Wrong! It was \(viewModel.currentQuoteAuthor)")
+                        .fontWeight(.bold).foregroundColor(result ? .green : .red)
                 }
                 
                 Spacer()
                 
-                // Generate Knop
                 Button(action: {
                     Task {
                         await viewModel.fetchRandomQuote()
@@ -115,32 +76,35 @@ struct GeneratorView: View {
                     }
                 }) {
                     Text("GENERATE QUOTE")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(orangePink)
+                        .font(.headline).foregroundColor(.white)
+                        .frame(maxWidth: .infinity).padding()
+                        .background(LinearGradient(colors: [.orange, .pink], startPoint: .leading, endPoint: .trailing))
                         .cornerRadius(15)
                 }
-                .padding(.horizontal)
-                .padding(.bottom, 20)
+                .padding(.horizontal).padding(.bottom, 20)
             }
-            .padding(.top, 20)
         }
-        .task {
-            if viewModel.currentQuoteAuthor.isEmpty {
-                await viewModel.fetchRandomQuote()
-            }
+        .task { if viewModel.currentQuoteAuthor.isEmpty { await viewModel.fetchRandomQuote() } }
+    }
+    
+    // Helper voor de knoppen om code dubbeling te voorkomen
+    @ViewBuilder
+    func guessButton(title: String, color: Color, isKanye: Bool) -> some View {
+        Button(action: { viewModel.guess(isKanye: isKanye) }) {
+            Text(title)
+                .font(.headline)
+                .frame(maxWidth: .infinity).padding()
+                .background(viewModel.guessResult == nil ? color.opacity(0.2) : Color.gray.opacity(0.1))
+                .foregroundColor(viewModel.guessResult == nil ? color : .gray)
+                .cornerRadius(12)
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(viewModel.guessResult == nil ? color.opacity(0.5) : Color.gray.opacity(0.2), lineWidth: 1))
         }
     }
     
     private func toggleSave() {
-        if isSaved {
-            // Logica om te verwijderen (optioneel voor dit scherm)
-        } else {
-            let newFav = QuoteItem(text: viewModel.currentQuoteText, author: viewModel.currentQuoteAuthor)
-            modelContext.insert(newFav)
-            isSaved = true
-        }
+        guard !isSaved else { return }
+        let newFav = QuoteItem(text: viewModel.currentQuoteText, author: viewModel.currentQuoteAuthor)
+        modelContext.insert(newFav)
+        isSaved = true
     }
 }
