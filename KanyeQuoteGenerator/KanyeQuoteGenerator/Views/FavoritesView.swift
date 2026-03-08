@@ -19,40 +19,41 @@ struct FavoritesView: View {
                     .foregroundColor(.white)
                     .padding([.horizontal, .top])
                 
-                ScrollView {
-                    LazyVStack(spacing: 15) {
-                        ForEach(favorites) { quote in
-                            VStack(alignment: .leading, spacing: 12) {
-                                HStack(alignment: .top) {
-                                    Text("\"\(quote.text)\"")
-                                        .font(.body)
-                                        .foregroundColor(.white)
-                                        .italic()
+                List {
+                    ForEach(favorites) { quote in
+                        VStack(alignment: .leading, spacing: 12) {
+                            
+                            HStack(alignment: .top) {
+                                Text("\"\(quote.text)\"")
+                                    .font(.body)
+                                    .foregroundColor(.white)
+                                    .italic()
+
+                                Spacer()
+
+                                HStack(spacing: 15) {
+                                    Button(action: { quoteToEdit = quote }) {
+                                        Image(systemName: "square.and.pencil")
+                                    }
                                     
-                                    Spacer()
-                                    
-                                    HStack(spacing: 15) {
-                                        Button(action: { quoteToEdit = quote }) {
-                                            Image(systemName: "square.and.pencil").foregroundColor(.gray)
-                                        }
-                                        Button(action: { modelContext.delete(quote) }) {
-                                            Image(systemName: "trash").foregroundColor(.gray)
-                                        }
+                                    Button(action: { modelContext.delete(quote) }) {
+                                        Image(systemName: "trash")
                                     }
                                 }
-                                
-                                Text("\(quote.author) • \(quote.savedDate.formatted(date: .numeric, time: .omitted))")
-                                    .font(.caption)
-                                    .foregroundColor(.blue.opacity(0.8))
                             }
-                            .padding()
-                            .background(Color.white.opacity(0.05))
-                            .cornerRadius(16)
-                            .overlay(RoundedRectangle(cornerRadius: 16).stroke(.white.opacity(0.1), lineWidth: 1))
+
+                            Text("\(quote.author) • \(quote.savedDate.formatted(date: .numeric, time: .omitted))")
+                                .font(.caption)
+                                .foregroundColor(.blue.opacity(0.8))
                         }
-                    }
-                    .padding()
-                }
+                        .padding()
+                                .background(Color.white.opacity(0.05))
+                                .cornerRadius(16)
+                                .listRowBackground(Color.clear)
+                            }
+                        }
+                        .listStyle(.plain)
+                        .scrollContentBackground(.hidden)
                 
                 Button(action: { showingAddSheet = true }) {
                     Text("ADD CUSTOM QUOTE")
