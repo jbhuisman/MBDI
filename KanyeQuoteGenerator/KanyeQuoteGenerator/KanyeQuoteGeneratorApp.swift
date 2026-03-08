@@ -4,7 +4,6 @@ import SwiftData
 @main
 struct KanyeQuoteGeneratorApp: App {
     var sharedModelContainer: ModelContainer = {
-        // We gebruiken hier ons eigen model: QuoteItem
         let schema = Schema([QuoteItem.self])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

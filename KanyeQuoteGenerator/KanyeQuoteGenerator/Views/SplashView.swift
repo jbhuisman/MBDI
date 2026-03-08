@@ -3,7 +3,6 @@ import SwiftUI
 struct SplashView: View {
     var body: some View {
         ZStack {
-            // Achtergrond afbeelding met overlay
             AsyncImage(url: URL(string: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSVuSlHzUyEdcQ_u2y7qiCZZD7EiH5gLsEAE2ABKhn2VnP77ROdPG_Bupn&s=10")) { image in
                 image
                     .resizable()
