@@ -1,10 +1,11 @@
 import SwiftUI
 
 struct ContentView: View {
-    
+    // Als veranderd herteken mij
     @State private var viewModel = QuoteViewModel()
     @State private var showSplash = true
     
+    // Weet de app al, hoeft niet meer door te geven
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @State private var selectedTab = 0
     
@@ -99,7 +100,7 @@ extension ContentView {
             .padding(.horizontal)
             .padding(.top, 10)
             
-            
+            // Gebruikt geen tabview dus handmatig aangeven
             if selectedTab == 0 {
                 GeneratorView(viewModel: viewModel)
             } else {

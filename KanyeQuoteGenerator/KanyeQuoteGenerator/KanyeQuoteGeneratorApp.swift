@@ -12,7 +12,7 @@ struct KanyeQuoteGeneratorApp: App {
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
-    }()
+    }() // Voer closure direct uit als proprty is aangemaakt
 
     var body: some Scene {
         WindowGroup {

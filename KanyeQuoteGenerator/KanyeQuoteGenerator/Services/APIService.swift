@@ -32,3 +32,4 @@ struct ZenQuoteResponse: Codable {
     let q: String
     let a: String
 }
+// Verplaatsen API response klasse

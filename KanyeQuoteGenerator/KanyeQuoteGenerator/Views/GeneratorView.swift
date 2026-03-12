@@ -25,6 +25,7 @@ struct GeneratorView: View {
                 portraitLayout
             }
         }
+        // Voer async code uit zodra view verschijnt
         .task {
             if viewModel.currentQuoteAuthor.isEmpty {
                 await viewModel.fetchRandomQuote()

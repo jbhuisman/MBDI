@@ -19,6 +19,7 @@ final class QuoteViewModel {
         do {
             if isKanye {
                 let quote = try await APIService.fetchKanyeQuote()
+                // UI updates moeten op de main thread
                 await MainActor.run {
                     self.currentQuoteText = quote
                     self.currentQuoteAuthor = "Kanye West"
